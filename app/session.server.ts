@@ -54,6 +54,15 @@ export async function requireUserId(
   return userId;
 }
 
+export async function requireAdmin(request: Request) {
+  const user = await requireUser(request);
+  if (!user.admin) {
+    throw redirect(`/`);
+  }
+
+  return user;
+}
+
 export async function requireUser(request: Request) {
   const userId = await requireUserId(request);
 

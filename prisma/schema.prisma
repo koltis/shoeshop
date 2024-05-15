@@ -5,34 +5,109 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 model User {
   id    String @id @default(cuid())
   email String @unique
-
+  recoverString String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  admin Boolean @default(false)
   password Password?
-  notes    Note[]
+
 }
 
 model Password {
   hash String
-
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 }
 
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
 
+enum Genders { 
+  Male
+  Female
+  Kids
+}
+
+model Color {
+  id String @id @default(cuid())
+  name String @unique
+  products Product[]
+}
+
+model Gender {
+  id String @id @default(cuid())
+  gender Genders
+  products Product[]
+}
+
+model Brand {
+  id String @id @default(cuid())
+  name String @unique
+  products Product[]
+}
+
+model Size {
+  id String @id @default(cuid())
+  size String @unique
+  units Unit[]
+}
+
+model Category{
+  id String @id @default(cuid())
+  name String @unique
+  subCategories SubCategory[]
+  products Product[]
+}
+model SubCategory{
+  id String @id @default(cuid())
+  name String @unique
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  products Product[]
+}
+
+model Unit {
+  id String @id @default(cuid())
+  stock Int
+  size Size @relation(fields: [sizeId],references: [id])
+  sizeId String
+  product Product @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model ProductSeoName {
+ id String @id @default(cuid())
+ name String @unique
+ products Product[]
+}
+
+model Image{
+ id String @id @default(cuid())
+ url String 
+ product Product @relation(fields: [productId], references: [id])
+ productId String
+}
+
+model Product {
+  id String @id @default(cuid())
+  gender Gender[]
+  brand Brand[]
+  colors Color[]
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  subCategory SubCategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId String
+  units Unit[]
+  discount Int
+  price Float
+  name String @unique 
+  images Image[]
+  manufacturerID String
+  seoNames ProductSeoName[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
 }

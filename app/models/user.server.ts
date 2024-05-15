@@ -1,4 +1,5 @@
 import type { Password, User } from "@prisma/client";
+import sgMail from "@sendgrid/mail";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "~/db.server";
@@ -24,6 +25,21 @@ export async function createUser(email: User["email"], password: string) {
           hash: hashedPassword,
         },
       },
+    },
+  });
+}
+
+export async function updateUserPassword(password: string, id: string) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return prisma.user.update({
+    where: { id },
+    data: {
+      password: {
+        update: {
+          hash: hashedPassword,
+        },
+      },
+      recoverString: null,
     },
   });
 }
@@ -61,3 +77,7 @@ export async function verifyLogin(
 
   return userWithoutPassword;
 }
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+
+export { sgMail };
